@@ -1,0 +1,28 @@
+
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    line-height:1;
+    height: 72px;
+    /* background-color:gray; */
+}   
+
+.navigation logo.img {
+    background-color: black;
+    padding: 50px;
+}
+
+.navigation ul {
+    display: flex;
+    justify-content: space-between;
+    list-style: none;
+    gap: 40px;
+    align-items: center;
+    font-weight: 1000px;
+    font-style: bold;
+    /* padding-right: 50px; */
+
+    
+}
+ 

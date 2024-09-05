@@ -1,0 +1,22 @@
+
+.Contact h1{
+    font-size: 48px ; 
+    color: #000000;
+    font-style: bold; 
+    font-weight: 800;
+    justify-content: center;
+    line-height: 100px;
+}
+
+.Contact p{  
+    letter-spacing: 2px;
+    font-weight: 500px;
+    color: black ;
+    font-style: bold;
+    max-width: 80%;
+}
+
+.Contact{
+    max-width: 1000px;
+    margin: 0 auto;
+}
