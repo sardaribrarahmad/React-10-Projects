@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Todolist from "./Todolist";
 import Navigation from "./Navigation";
 //import { FaCheck } from "react-icons/fa";
@@ -8,7 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-toastify/dist/ReactToastify.css";
 
-const Deleted = () => {
+export const Deleted = () => {
   const [deleteTodos, setDeleteTodos] = useState([]);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const Deleted = () => {
       setDeleteTodos(userDeletedTodos);
     }
   }, []);
-
+  
   const handleDelete = (index) => {
     let updatedTodos = [...deleteTodos];
     const deleteditem = updatedTodos.splice(index, 1)[0];

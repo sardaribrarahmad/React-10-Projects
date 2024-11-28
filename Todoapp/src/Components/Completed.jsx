@@ -73,7 +73,7 @@ export const Completed = () => {
                   <Todolist
                     title={<h3>{items.Title}</h3>}
                     description={<p>{items.Description}</p>}
-                    time ={<p className="text-green-400 font-bold">Completed at: {items.completedTime}</p>}  
+                    //time ={<p className="text-green-400 font-bold">Completed at: {items.completedTime}</p>}
                     delicon={
                       <MdDelete
                         className=" hover:text-red hover:rounded-full  hover:w-10 hover:bg-red-700 "

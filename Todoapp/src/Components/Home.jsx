@@ -5,9 +5,13 @@ import { MdEditDocument } from "react-icons/md";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "react-toastify/dist/ReactToastify.css";
+import { FaCheck } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
-const Home = () => {
+import Login from "./Login";
 
+const Home = () => {
+  const navigate = useNavigate();
   // for getting name dynamically
   const [loggeduser, setLoggeduser] = useState(null);
   const handleuser = () => {
@@ -17,34 +21,31 @@ const Home = () => {
   useEffect(() => {
     handleuser();
   }, []);
-  
-  
-  const Notify = () => {
-    toast("items added to list successfully", {
-      position: "top-right",
-    });
-  };
 
-    const currentTime = new Date().toLocaleString('en-GB', {
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      day: '2-digit',
-      hour12:true,
-    });
+  useEffect(() => {
+    if (!loggeduser) {
+      navigate("/"); // Redirect to the root route
+    }
+  }, [loggeduser, navigate]);
 
-  // from submission 
-  
+  const currentTime = new Date().toLocaleString("en-GB", {
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    day: "2-digit",
+    hour12: true,
+  });
+
+  // from submission
+
   const [todos, setTodos] = useState([]);
 
   const [todo, setTodo] = useState({
     Title: "",
     Description: "",
-    EmailId: loggeduser ? loggeduser.Email : '',
-    time:currentTime,
-
-    
+    EmailId: loggeduser ? loggeduser.Email : "",
+    time: currentTime,
   });
 
   const handleChange = (e) => {
@@ -54,18 +55,30 @@ const Home = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-// storing the emial id in todolist along with orther details 
-    const newTodo = {...todo, EmailId: loggeduser ? loggeduser.Email : "",time:currentTime}
+    // Check if the user is logged in
+    if (!loggeduser) {
+      alert("Please log in first to add a todo.");
+      return; // Exit the function early, preventing the todo from being added
+    }
+
+    // Store the email ID in the todolist along with other details
+    const newTodo = {
+      ...todo,
+      EmailId: loggeduser.Email, // Since we've already checked for logged user, no need for ternary here
+      time: currentTime,
+    };
 
     const newTodos = [newTodo, ...todos];
 
     setTodos(newTodos);
     localStorage.setItem("todolist", JSON.stringify(newTodos));
     console.log("Added todos:", newTodos);
+
+    // Reset form after submission
     setTodo({
       Title: "",
       Description: "",
-      EmailId: loggeduser ? loggeduser.Email : "",
+      EmailId: loggeduser.Email,
     });
   };
 
@@ -80,11 +93,10 @@ const Home = () => {
 
   // Handle edit button click to populate the edit form
   const [currentedit, setCurrentEdit] = useState(null);
-const [currentediteditem, setCurrentEditedItem] = useState({
-  Title: "",
-  Description: "",
-  
-});
+  const [currentediteditem, setCurrentEditedItem] = useState({
+    Title: "",
+    Description: "",
+  });
   const handleUpdate = (index, item) => {
     console.log("Editing item at index:", index); // Debugging output
     setCurrentEdit(index);
@@ -119,9 +131,9 @@ const [currentediteditem, setCurrentEditedItem] = useState({
 
   const handleComplete = (index) => {
     let updatedTodos = [...todos];
-    
-  //const completedTime = [...todos, currentTime];
-   //const Ctime =[completedTime];
+
+    //const completedTime = [...todos, currentTime];
+    //const Ctime =[completedTime];
 
     const completedItem = updatedTodos.splice(index, 1)[0]; // Remove the item from the list
     console.log("completedItem", completedItem); // for seeing output which one completed
@@ -131,9 +143,9 @@ const [currentediteditem, setCurrentEditedItem] = useState({
     //console.log("your time is here",Ctime)
     localStorage.setItem("todolist", JSON.stringify(updatedTodos)); // Update the local storage
 
-  
     // Save the completed item in a different local storage key
-    let completedTodos = JSON.parse(localStorage.getItem("completedTodos")) || [];
+    let completedTodos =
+      JSON.parse(localStorage.getItem("completedTodos")) || [];
     completedTodos.unshift(completedItem);
     localStorage.setItem("completedTodos", JSON.stringify(completedTodos));
     console.log("Completed Todos:", completedTodos);
@@ -167,160 +179,209 @@ const [currentediteditem, setCurrentEditedItem] = useState({
       position: "top-right",
     });
   };
-  
-  const filteredTodos = todos.filter((todo) => todo.EmailId === loggeduser?.Email);
+
+  const filteredTodos = todos.filter(
+    (todo) => todo.EmailId === loggeduser?.Email
+  );
   //console.log("Todos for specific email id",filteredTodos);
-  
+
   return (
     <>
-      <Navigation isHome={true} />
-      <div className="container mx-auto">
-        <div className="">
-          <h1 className="p-8  text-lime-400 flex items-center justify-center text-2xl mt-2 md:text-5xl">
-            {loggeduser ? `Welcome ${loggeduser.Name}` : ""}
-          </h1>
-          <div className="p-6 mb-10">
-            <div className=" container mx-auto flex flex-col bg-light max-h-[40%] p-10 gap-8 lg:w-[70%] ">
-              <form onSubmit={handleSubmit}>
-                <div className="flex flex-col md:flex-row md:justify-between gap-8 justify-start  ">
-                  <div className="flex flex-col gap-3 w-full md:w-4/12 ">
-                    <label className="text-3xl font-bold" htmlFor="">
-                      Title:
-                    </label>
-                    <input
-                      onChange={handleChange}
-                      value={todo.Title}
-                      className="p-2 border bg-white outline-none text-gray-700 md:p-4 md:text-2xl  "
-                      type="text"
-                      placeholder="whats the title of your todo"
-                      name="Title"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-3 w-full md:w-4/12">
-                    <label className="font-bold text-3xl" htmlFor="">
-                      Description:
-                    </label>
-                    <input
-                      onChange={handleChange}
-                      value={todo.Description}
-                      className="p-2 bg-white w-full  outline-none text-gray-700 md:p-4 md:text-2xl"
-                      type="text"
-                      placeholder="whats the title of your todo"
-                      name="Description"
-                    />
-                  </div>
+      {!loggeduser ? (
+        <Login />
+      ) : (
+        <>
+          <Navigation isHome={true} />
+          <div className="container mx-auto">
+            <div className="">
+              <h1 className="p-8  text-lime-400 flex items-center justify-center text-2xl mt-2 md:text-5xl">
+                {loggeduser ? `Welcome ${loggeduser.Name}` : ""}
+              </h1>
+              <div className="p-6 mb-10">
+                <div className=" container mx-auto flex flex-col bg-light max-h-[40%] p-10 gap-8 lg:w-[70%] ">
+                  <form onSubmit={handleSubmit}>
+                    <div className="flex flex-col md:flex-row md:justify-between gap-8 justify-start  ">
+                      <div className="flex flex-col gap-3 w-full md:w-4/12 ">
+                        <label className="text-3xl font-bold" htmlFor="">
+                          Title:
+                        </label>
+                        <input
+                          onChange={handleChange}
+                          value={todo.Title}
+                          className="p-2 border bg-white outline-none text-gray-700 md:p-4 md:text-2xl  "
+                          type="text"
+                          placeholder="whats the title of your todo"
+                          name="Title"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-3 w-full md:w-4/12">
+                        <label className="font-bold text-3xl" htmlFor="">
+                          Description:
+                        </label>
+                        <input
+                          onChange={handleChange}
+                          value={todo.Description}
+                          className="p-2 bg-white w-full  outline-none text-gray-700 md:p-4 md:text-2xl"
+                          type="text"
+                          placeholder="whats the title of your todo"
+                          name="Description"
+                        />
+                      </div>
 
-                  <div className="mt-4 md:mt-12">
-                    <button
-                      onClick={Notify}
-                      type="submit"
-                      className="bg-green-500 flex items-center text-white p-4 font-bold text-2xl px-6 "
-                    >
-                      ADD
-                    </button>
-                    <ToastContainer />
-                  </div>
-                </div>
-              </form>
-
-              <div className="border-t flex justify-center gap-5 border-white pt-8">
-                <div className="container mx-auto flex gap-5 w-full flex-col md:flex-row md:justify-center md:gap-5 ">
-                  <button className="bg-teal-600 text-white p-5 font-bold text-2xl w-full md:w-48">
-                    To DO
-                  </button>
-                  <button className="w-full md:w-48 bg-blue-600 text-white p-5 font-bold text-2xl ">
-                    <Link to="/Completed">Completed</Link>
-                  </button>
-
-                  <button className="w-full md:w-48 bg-emerald-700 text-white p-5 font-bold text-2xl ">
-                    <Link to="/Deleted">Deleted</Link>
-                  </button>
-                </div>
-              </div>
-
-              {filteredTodos.map((item, index) => {
-                if (currentedit === index) {
-                  return (
-                    <div key={index}>
-                      <div className="flex flex-col gap-8 justify-start md:justify-between md:flex-row md:w-full">
-                        <div className="flex flex-col gap-3 w-full md:w-6/12 ">
-                          <label className="text-3xl font-bold" htmlFor="">
-                            Updated Title:
-                          </label>
-                          <input
-                            onChange={(e) => handleUpdateTitle(e.target.value)}
-                            value={currentediteditem.Title}
-                            className="p-2 border bg-white outline-none text-gray-700 md:p-4 md:text-2xl  "
-                            type="text"
-                            placeholder="Updated title "
-                            name="Updated Title"
-                          />
-                        </div>
-                        <div className="flex flex-col gap-3 w-full md:w-6/12">
-                          <label className="font-bold text-3xl" htmlFor="">
-                            New Description:
-                          </label>
-                          <input
-                            onChange={(e) => handleUpdateDesc(e.target.value)}
-                            value={currentediteditem.Description}
-                            className="p-2 bg-white w-full  outline-none text-gray-700 md:p-4 md:text-2xl"
-                            type="text"
-                            placeholder="Edit description"
-                            name="New Description"
-                          />
-                        </div>
-
-                        <div className="mt-12">
-                          <button
-                            onClick={handleUpdatelist}
-                            type="button"
-                            className="bg-green-500 flex items-center text-white p-4 font-bold text-2xl px-6"
-                          >
-                            Update
-                          </button>
-                        </div>
+                      <div className="mt-4 md:mt-12">
+                        <button
+                          //onClick={Notify}
+                          type="submit"
+                          className="bg-green-500 flex items-center text-white p-4 font-bold text-2xl px-6 "
+                        >
+                          ADD
+                        </button>
+                        <ToastContainer />
                       </div>
                     </div>
-                  );
-                } else {
-                  return (
+                  </form>
+
+                  <div className="border-t flex justify-center gap-5 border-white pt-8">
+                    <div className="container mx-auto flex gap-5 w-full flex-col md:flex-row md:justify-center md:gap-5 ">
+                      {!loggeduser ? (
+                        <button className="bg-teal-600 text-white p-5 font-bold text-2xl w-full md:w-48">
+                          To DO
+                        </button>
+                      ) : (
+                        <div className="container mx-auto flex gap-5 w-full flex-col md:flex-row md:justify-center md:gap-5 ">
+                          <button className="bg-teal-600 text-white p-5 font-bold text-2xl w-full md:w-48">
+                            To DO
+                          </button>
+                          <button className="w-full md:w-48 bg-blue-600 text-white p-5 font-bold text-2xl ">
+                            <Link to="/Completed">Completed</Link>
+                          </button>
+
+                          <button className="w-full md:w-48 bg-emerald-700 text-white p-5 font-bold text-2xl ">
+                            <Link to="/Deleted">Deleted</Link>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {filteredTodos.map((item, index) => {
+                    if (currentedit === index) {
+                      return (
                         <div key={index}>
-                      <Todolist
-                        title={item.Title}
-                        description={item.Description}
-                        time={item.time}
-                        delicon={
-                          <MdDelete
-                            className=" hover:text-red hover:rounded-full  hover:w-10 hover:bg-red-700 "
-                            size={"40px"}
-                            onClick={() => handleDelete(index)}
-                          />}
-                        editicon={
-                          <MdEditDocument
-                            className="hover:rounded-full hover:w-10  hover:bg-yellow-400"
-                            size={"40px"}
-                            onClick={() => handleUpdate(index, item)}
-                          />}
-                        completed={
-                          <FaCheck
-                            className="hover:rounded-full hover:w-10  hover:bg-green-800"
-                            size={"40px"}
-                            onClick={() => handleComplete()}
-                          />}
-                      />
-                      </div> 
-                  );
-                }
-              })}
+                          <div className="flex flex-col gap-8 justify-start md:justify-between md:flex-row md:w-full">
+                            <div className="flex flex-col gap-3 w-full md:w-6/12 ">
+                              <label className="text-3xl font-bold" htmlFor="">
+                                Updated Title:
+                              </label>
+                              <input
+                                onChange={(e) =>
+                                  handleUpdateTitle(e.target.value)
+                                }
+                                value={currentediteditem.Title}
+                                className="p-2 border bg-white outline-none text-gray-700 md:p-4 md:text-2xl  "
+                                type="text"
+                                placeholder="Updated title "
+                                name="Updated Title"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-3 w-full md:w-6/12">
+                              <label className="font-bold text-3xl" htmlFor="">
+                                New Description:
+                              </label>
+                              <input
+                                onChange={(e) =>
+                                  handleUpdateDesc(e.target.value)
+                                }
+                                value={currentediteditem.Description}
+                                className="p-2 bg-white w-full  outline-none text-gray-700 md:p-4 md:text-2xl"
+                                type="text"
+                                placeholder="Edit description"
+                                name="New Description"
+                              />
+                            </div>
+
+                            <div className="mt-12">
+                              <button
+                                onClick={handleUpdatelist}
+                                type="button"
+                                className="bg-green-500 flex items-center text-white p-4 font-bold text-2xl px-6"
+                              >
+                                Update
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div key={index}>
+                          <Todolist
+                            title={item.Title}
+                            description={item.Description}
+                            time={item.time}
+                            delicon={
+                              <MdDelete
+                                className=" hover:text-red hover:rounded-full  hover:w-10 hover:bg-red-700 "
+                                size={"40px"}
+                                onClick={() => handleDelete(index)}
+                              />
+                            }
+                            editicon={
+                              <MdEditDocument
+                                className="hover:rounded-full hover:w-10  hover:bg-yellow-400"
+                                size={"40px"}
+                                onClick={() => handleUpdate(index, item)}
+                              />
+                            }
+                            completed={
+                              <FaCheck
+                                className="hover:rounded-full hover:w-10  hover:bg-green-800"
+                                size={"40px"}
+                                onClick={() => handleComplete()}
+                              />
+                            }
+                          />
+                        </div>
+                      );
+                    }
+                  })}
+                  <nav aria-label="Page navigation example">
+                    <ul className="pagination flex gap-4 text-2xl justify-center items-center " >
+                      <li className="page-item bg-white">
+                        <a className="page-link border border-black justify-center items-center " href="#">
+                          Previous
+                        </a>
+                      </li>
+                      <li className="page-item bg-white">
+                        <a className="page-link border border-black justify-center items-center" href="#">
+                          1
+                        </a>
+                      </li>
+                      <li className="page-item bg-white">
+                        <a className="page-link border border-black justify-center items-center" href="#">
+                          2
+                        </a>
+                      </li>
+                      <li className="page-item  bg-white" >
+                        <a className="page-link border border-black justify-center items-center" href="#">
+                          3
+                        </a>
+                      </li>
+                      <li className="page-item bg-white">
+                        <a className="page-link border border-black justify-center items-center" href="#">
+                          Next
+                        </a>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </>
   );
-}
+};
 
 export default Home;
-
-import { FaCheck } from "react-icons/fa";
-import { Link } from "react-router-dom";
